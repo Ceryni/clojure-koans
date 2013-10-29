@@ -9,3 +9,5 @@ target
 .lein-plugins
 .lein-repl-history
 
+.idea
+*.iml
