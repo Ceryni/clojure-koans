@@ -5,37 +5,45 @@
 
 (meditations
   "Destructuring is an arbiter: it breaks up arguments"
-  (= __ ((fn [[a b]] (str b a))
-         [:foo :bar]))
+  (= ":bar:foo" ((fn [[a b]] (str b a))
+                  [:foo :bar]))
 
   "Whether in function definitions"
   (= (str "First comes love, "
-          "then comes marriage, "
-          "then comes Clojure with the baby carriage")
-     ((fn [[a b c]] __)
+       "then comes marriage, "
+       "then comes Clojure with the baby carriage")
+    ((fn [[a b c]] (str "First comes " a ", then comes " b ", then comes " c " with the baby carriage"))
       ["love" "marriage" "Clojure"]))
 
   "Or in let expressions"
   (= "Rich Hickey aka The Clojurer aka Go Time aka Macro Killah"
-     (let [[first-name last-name & aliases]
-           (list "Rich" "Hickey" "The Clojurer" "Go Time" "Macro Killah")]
-       __))
+    (let [[first-name last-name & aliases]
+          (list "Rich" "Hickey" "The Clojurer" "Go Time" "Macro Killah")]
+      (apply str first-name " " last-name " aka " (interpose " aka " aliases))))
 
   "You can regain the full argument if you like arguing"
   (= {:original-parts ["Steven" "Hawking"] :named-parts {:first "Steven" :last "Hawking"}}
-     (let [[first-name last-name :as full-name] ["Steven" "Hawking"]]
-       __))
+    (let [[first-name last-name :as full-name] ["Steven" "Hawking"]]
+      {:original-parts full-name :named-parts {:first first-name :last last-name}}))
 
   "Break up maps by key"
   (= "123 Test Lane, Testerville, TX"
-     (let [{street-address :street-address, city :city, state :state} test-address]
-       __))
+    (let [{street-address :street-address, city :city, state :state} test-address]
+      ;    Careful with lazy seq's, they aren't eval'd until prompted to be, simply using (str ...) here would not work, need apply
+      (apply str (interpose ", " (list street-address city state)))
+      )
+    )
 
   "Or more succinctly"
   (= "123 Test Lane, Testerville, TX"
-     (let [{:keys [street-address __ __]} test-address]
-       __))
+    (let [{:keys [street-address city state]} test-address]
+      (apply str (interpose ", " (list street-address city state)))
+      ))
 
   "All together now!"
   (= "Test Testerson, 123 Test Lane, Testerville, TX"
-     (___ ["Test" "Testerson"] test-address)))
+    (let [[firstname lastname :as fullname] ["Test" "Testerson"]
+          {:keys [street-address city state]} test-address]
+       (apply str (concat (interpose " " fullname) (interleave (repeat ", ") (list street-address city state))))
+      ))
+  )
