@@ -32,4 +32,5 @@ repeatedly
 
 
 ---My Ideas---
-Add Nested Structure test to destructuring 14
+Add Nested destructuring test to 14_destructuring.clj
+Add cons/conj of two sequences to 02_lists.clj
